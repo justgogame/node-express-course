@@ -48,12 +48,18 @@ const server = http.createServer((req, res) => {
       if (body["color"]) {
         selectedColor = body["color"];
       }
-      res.writeHead(303, { Location: "/" });
+      res.writeHead(303, {
+        Location: "/"
+      });
       res.end();
     });
   } else {
     res.end(form());
   }
+});
+
+server.on("request", (req) => {
+  console.log("event received: ", req.method, req.url);
 });
 
 server.listen(3000);

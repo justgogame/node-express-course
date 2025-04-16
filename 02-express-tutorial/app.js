@@ -1,8 +1,19 @@
 const express = require('express');
 const app = express();
-const { products } = require('./data');
+const { products, people } = require('./data');
 
-app.use(express.static('./public'));
+const peopleRouter = require('./routes/people.js');
+
+const logger = (req, res, next) => {
+  const method = req.method;
+  const url = req.url;
+  const time = new Date();
+  console.log(method, url, time);
+
+  next();
+};
+
+app.use(express.static('./methods-public'), logger);
 
 app.get('/api/v1/test', (req, res) => {
   res.json({
@@ -10,21 +21,10 @@ app.get('/api/v1/test', (req, res) => {
   });
 });
 
-app.get('/api/v1/products', (req, res) => {
-  res.json(products);
-});
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 
-app.get('/api/v1/products/:productID', (req, res) => {
-  const idToFind = parseInt(req.params.productID);
-  const product = products.find((p) => p.id === idToFind);
-
-  if (!product) {
-    return res.status(404).json({
-      message: 'That product was not found.'
-    });
-  }
-  return res.json(product);
-});
+app.use('/api/v1/people', peopleRouter);
 
 app.get('/api/v1/query', (req, res) => {
   const { search, limit, price } = req.query;
